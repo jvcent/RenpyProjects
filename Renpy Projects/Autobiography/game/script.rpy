@@ -1,4 +1,4 @@
-﻿init python:
+init python:
     from renpy.display import im
 
 init:
@@ -19,8 +19,16 @@ init:
         config.screen_height
     )
 
+    # Nina's expressions
+    image nina normal1 = "images/nina normal1.png"
+    image nina normal2 = "images/nina normal2.png"
+    image nina normal3 = "images/nina normal3.png"
+    image nina thinknote1 = "images/nina thinknote1.png"
+    image nina write1 = "images/nina write1.png"
+
 # 3) Your character and portrait declarations remain unchanged
 define me = Character("Jon", color="#66ccff")
+define nina = Character("Nina", color="#ff99cc")
 
 image me idle  = "images/portrait_idle.png"
 
@@ -55,6 +63,9 @@ label fact_menu:
             me "I've always played Badminton growing up, but starting high school I did competitive Taekwondo and received my black belt before leaving for University"
             jump more_menu
 
+        "Meet a new friend":
+            jump nina_intro
+
 # --- Ask if the player wants more facts or to quit ---
 label more_menu:
     menu:
@@ -64,3 +75,42 @@ label more_menu:
             show me idle at center
             me "See you next time!"
             return
+
+# --- Nina interactive scene ---
+label nina_intro:
+    scene bg park with fade
+    show nina normal1 at center
+
+    nina "Hi! I'm Nina. It's nice to meet you."
+    nina "What would you like to talk about?"
+
+    jump nina_convo
+
+label nina_convo:
+    menu:
+        "Ask Nina about her hobbies":
+            show nina normal2 at center
+            nina "Oh, I love writing stories and drawing in my notebook!"
+            show nina write1 at center
+            nina "Sometimes I get so lost in my writing, I forget the time."
+            jump nina_more
+        "Compliment Nina's notebook":
+            show nina thinknote1 at center
+            nina "Thank you! I always carry it with me. It's full of my thoughts and doodles."
+            show nina normal3 at center
+            nina "Would you like to see a drawing?"
+            jump nina_more
+        "Say hello shyly":
+            show nina normal3 at center
+            nina "Hehe, you're a bit shy, aren't you? That's okay! I'm happy to chat whenever you like."
+            jump nina_more
+
+label nina_more:
+    menu:
+        "Ask another question":
+            jump nina_convo
+        "Return to main menu":
+            scene bg kitchen with fade
+            show me idle at center
+            me "That was fun meeting Nina!"
+            jump fact_menu
