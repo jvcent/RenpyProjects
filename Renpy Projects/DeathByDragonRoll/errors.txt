@@ -2,9 +2,9 @@
 errors listed below, and try again.
 
 
-File "game/script.rpy", line 95: Line is indented, but the preceding default statement statement does not expect a block. Please check this line's indentation. You may have forgotten a colon (:).
-    key "K_SPACE" action Return(True)
-    ^
+File "game/script.rpy", line 265: keyword argument 'xanchor' is incompatible with 'xalign'.
+    xanchor 0.0  
+           ^
 
 Ren'Py Version: Ren'Py 8.3.7.25031702
-Sat Jun  7 21:50:21 2025
+Thu Jun 26 22:14:11 2025

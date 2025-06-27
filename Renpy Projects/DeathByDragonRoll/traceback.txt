@@ -1,26 +1,26 @@
 ﻿I'm sorry, but an uncaught exception occurred.
 
 While running game code:
-  File "game/script.rpy", line 13, in script
-    image evidence chopsticks idle = im.Scale("images/evidence/chopsticks.png", int(im.image_size("images/evidence/chopsticks.png")[0] / 3), int(im.image_size("images/evidence/chopsticks.png")[1] / 3))
-  File "game/script.rpy", line 13, in <module>
-    image evidence chopsticks idle = im.Scale("images/evidence/chopsticks.png", int(im.image_size("images/evidence/chopsticks.png")[0] / 3), int(im.image_size("images/evidence/chopsticks.png")[1] / 3))
-AttributeError: module 'renpy.display.im' has no attribute 'image_size'
+  File "game/script.rpy", line 15, in script
+    image equipment evidence_swab hover = im.Tint("#FFFFAA", im.Scale("images/equipment/evidence_swab.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1)))
+  File "game/script.rpy", line 15, in <module>
+    image equipment evidence_swab hover = im.Tint("#FFFFAA", im.Scale("images/equipment/evidence_swab.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1)))
+AttributeError: module 'renpy.display.im' has no attribute 'Tint'
 
 -- Full Traceback ------------------------------------------------------------
 
 Full traceback:
-  File "game/script.rpy", line 13, in script
-    image evidence chopsticks idle = im.Scale("images/evidence/chopsticks.png", int(im.image_size("images/evidence/chopsticks.png")[0] / 3), int(im.image_size("images/evidence/chopsticks.png")[1] / 3))
-  File "C:\Users\jvincentius\Downloads\renpy-8.3.7-sdk\renpy\ast.py", line 933, in execute
+  File "game/script.rpy", line 15, in script
+    image equipment evidence_swab hover = im.Tint("#FFFFAA", im.Scale("images/equipment/evidence_swab.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1)))
+  File "C:\Users\jvincentius\Documents\renpy-8.3.7-sdk\renpy\ast.py", line 933, in execute
     img = renpy.python.py_eval_bytecode(self.code.bytecode)
-  File "C:\Users\jvincentius\Downloads\renpy-8.3.7-sdk\renpy\python.py", line 1211, in py_eval_bytecode
+  File "C:\Users\jvincentius\Documents\renpy-8.3.7-sdk\renpy\python.py", line 1211, in py_eval_bytecode
     return eval(bytecode, globals, locals)
-  File "game/script.rpy", line 13, in <module>
-    image evidence chopsticks idle = im.Scale("images/evidence/chopsticks.png", int(im.image_size("images/evidence/chopsticks.png")[0] / 3), int(im.image_size("images/evidence/chopsticks.png")[1] / 3))
-AttributeError: module 'renpy.display.im' has no attribute 'image_size'
+  File "game/script.rpy", line 15, in <module>
+    image equipment evidence_swab hover = im.Tint("#FFFFAA", im.Scale("images/equipment/evidence_swab.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1)))
+AttributeError: module 'renpy.display.im' has no attribute 'Tint'
 
 Windows-10-10.0.26100 AMD64
 Ren'Py 8.3.7.25031702
 DeathByDragonRoll 1.0
-Sat Jun  7 21:56:41 2025
+Wed Jun 25 21:15:46 2025
