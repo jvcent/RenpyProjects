@@ -13,7 +13,7 @@ init:
     # Equipment images - scaled to appropriate size
     image equipment evidence_swab idle = im.Scale("images/equipment/evidence_swab.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1))
     image equipment evidence_swab hover = im.Scale("images/equipment/evidence_swab.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1))
-    image equipment evidence_swab selected = im.Scale("images/equipment/evidence_swab.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1))
+    image equipment evidence_swab selected = im.Scale("images/equipment/evidence_swab-kit.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1))
     
     image equipment fingerprint_kit idle = im.Scale("images/equipment/fingerprint-kit.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1))
     image equipment fingerprint_kit hover = im.Scale("images/equipment/fingerprint-kit.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1))
@@ -26,6 +26,14 @@ init:
     image equipment phadebas idle = im.Scale("images/equipment/phadebas.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1))
     image equipment phadebas hover = im.Scale("images/equipment/phadebas.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1))
     image equipment phadebas selected = im.Scale("images/equipment/phadebas.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1))
+    
+    image equipment pippette idle = im.Scale("images/equipment/pippette.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1))
+    image equipment pippette hover = im.Scale("images/equipment/pippette.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1))
+    image equipment pippette selected = im.Scale("images/equipment/pippette.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1))
+    
+    image equipment evidence_folder idle = im.Scale("images/equipment/evidence_folder.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1))
+    image equipment evidence_folder hover = im.Scale("images/equipment/evidence_folder.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1))
+    image equipment evidence_folder selected = im.Scale("images/equipment/evidence_folder.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1))
     
     image equipment scissors idle = im.Scale("images/equipment/scissors.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1))
     image equipment scissors hover = im.Scale("images/equipment/scissors.png", int(config.screen_width * 0.1), int(config.screen_height * 0.1))
@@ -69,20 +77,22 @@ style nina_say_window:
     background "images/interface/nina_dialogue.png"
     xalign 0.5
     yalign 0.8
+    
+# Now scales to 80% of screen width and 25% of screen height
+    xsize int(config.screen_width * 0.8)
+    ysize int(config.screen_height * 0.25)
 
-    # carve out exactly the region you want text to appear in.
-    # adjust these until the "hole" in your speech‐bubble matches your image.
-    left_padding  385   # push text in from the left edge of the bubble
-    right_padding 200   # push text in from the right edge
-    top_padding   230   # push text down from the top
-    bottom_padding 120  # push text up from the bottom
+    # Paddings tuned for the new size
+    left_padding   200
+    right_padding  100
+    top_padding    100
+    bottom_padding  60
 
-# this is the text inside that carved‐out region
 style nina_say_what:
     color       "#FFFFFF"
-    size        28
-    text_align  0.5    # center each line
-    xsize       900 
+    size        22         # slightly smaller for better fit
+    text_align  0.5
+    xsize       int(config.screen_width * 0.6)
 
 # Define our characters
 define nina = Character(
@@ -90,7 +100,7 @@ define nina = Character(
     window_style="nina_say_window",
     what_style="nina_say_what",
     window_xalign=0.5,
-    window_yalign=0.8,
+    window_yalign=0.75,  # Moved slightly higher on screen
 )
 
 define kenji = Character("Chef Kenji", color="#e74c3c")
@@ -106,7 +116,7 @@ default questioned_aiko = False
 # Equipment variables
 default selected_equipment = None
 default examining_evidence = None  # Tracks which evidence item is being examined
-default equipment_list = ["evidence_swab", "fingerprint_kit", "gauze", "phadebas", "scissors", "specimen_collection"]
+default equipment_list = ["evidence_swab", "fingerprint_kit", "gauze", "phadebas", "scissors", "specimen_collection", "pippette", "evidence_folder"]
 
 # Evidence collection tracking
 default evidence_collected = {
@@ -121,13 +131,13 @@ default evidence_collected = {
 
 # Evidence-equipment requirements mapping
 default evidence_requirements = {
-    "chopsticks": "fingerprint_kit",
-    "soySauce": "specimen_collection",
-    "courseMenu": "gauze",
-    "sushi": "evidence_swab",
-    "knife": "fingerprint_kit",
-    "fishFilet": "scissors",
-    "notebook": "phadebas"
+    "chopsticks": "evidence_folder",
+    "soySauce": "pippette",
+    "courseMenu": "evidence_folder",
+    "sushi": "specimen_collection",
+    "knife": "evidence_folder",
+    "fishFilet": "specimen_collection",
+    "notebook": "evidence_folder"
 }
 
 # Screen for displaying "Press space to continue" prompt
@@ -138,7 +148,7 @@ screen continue_prompt():
         padding (15, 8)
         background "#00000080"
         
-        text "Press SPACE to continue" style "continue_text"
+        text "Press SPACE to continue to next scene" style "continue_text"
     
     # Add key event to detect space bar
     key "K_SPACE" action Return(True)
@@ -191,14 +201,14 @@ transform pulse:
     linear 0.5 alpha 1.0
     repeat
 
-# Equipment selection screen - displays equipment on both sides of the screen
+# Equipment selection screen - displays equipment on both sides of the screen (4 on each side)
 screen equipment_selection():
     # Only show when an evidence item is being examined
     if examining_evidence:
-        # Split equipment list into two groups
+        # Split equipment list into two groups (4 items each)
         python:
-            left_equipment = equipment_list[:3]  # First three items
-            right_equipment = equipment_list[3:] # Rest of items
+            left_equipment = equipment_list[:4]  # First four items
+            right_equipment = equipment_list[4:] # Last four items
             required_equipment = evidence_requirements.get(examining_evidence, "")
             
         # Left side equipment toolbar - appears with a slide animation
@@ -216,19 +226,15 @@ screen equipment_selection():
                 yalign 0.5
                 
                 for item in left_equipment:
+                    # Only highlight selected equipment, no hint for required equipment
                     $ frame_bg = "#00FF0080" if selected_equipment == item else None
-                    $ is_required = (item == required_equipment)
                     
                     frame:
-                        # Use different colored frames to indicate states
+                        # Use green background for selected equipment
                         background frame_bg
                         padding (10, 10)
                         margin (5, 5)
                         xalign 0.5
-                        
-                        # Add gold highlight for required tool
-                        if is_required:
-                            at pulse
                         
                         vbox:
                             spacing 5
@@ -261,19 +267,15 @@ screen equipment_selection():
                 yalign 0.5
                 
                 for item in right_equipment:
+                    # Only highlight selected equipment, no hint for required equipment
                     $ frame_bg = "#00FF0080" if selected_equipment == item else None
-                    $ is_required = (item == required_equipment)
                     
                     frame:
-                        # Use different colored frames to indicate states
+                        # Use green background only for selected equipment
                         background frame_bg
                         padding (10, 10)
                         margin (5, 5)
                         xalign 0.5
-                        
-                        # Add gold highlight for required tool
-                        if is_required:
-                            at pulse
                         
                         vbox:
                             spacing 5
@@ -319,8 +321,7 @@ screen evidence_items(items):
                                 Function(add_to_inventory, item_name), 
                                 Show("evidence_collected", item=item_name),
                                 SetVariable("examining_evidence", None),
-                                SetVariable("selected_equipment", None),
-                                Return(None)]
+                                SetVariable("selected_equipment", None)]
                     else:
                         # If equipment is wrong, show feedback
                         action Show("wrong_equipment", item=item_name, required_equipment=evidence_requirements[item_name])
@@ -336,7 +337,7 @@ screen evidence_items(items):
 
 # Screen for displaying evidence collection message
 screen evidence_collected(item):
-    modal True
+    modal False  # Changed to not block other interactions
     frame:
         xalign 0.5
         yalign 0.3
@@ -354,11 +355,11 @@ screen evidence_collected(item):
             null height 5
             if selected_equipment:
                 text "Used equipment: " + selected_equipment.replace("_", " ").title() style "evidence_text"
-    timer 2.5 action Hide("evidence_collected")
+    timer 1.5 action Hide("evidence_collected")  # Shorter timer so it doesn't block for too long
 
 # Screen for displaying wrong equipment message
 screen wrong_equipment(item, required_equipment):
-    modal True
+    modal False  # Changed to not block other interactions
     frame:
         xalign 0.5
         yalign 0.3
@@ -375,11 +376,10 @@ screen wrong_equipment(item, required_equipment):
             null height 5
             if selected_equipment:
                 text "Current tool: " + selected_equipment.replace("_", " ").title() style "evidence_text"
-                text "You need: " + required_equipment.replace("_", " ").title() style "evidence_text" 
+                # Removed the hint about which equipment to use
             else:
                 text "You need to select the appropriate equipment first." style "evidence_text"
-                text "Required: " + required_equipment.replace("_", " ").title() style "evidence_text"
-    timer 3.5 action Hide("wrong_equipment")
+    timer 2.0 action Hide("wrong_equipment")  # Shorter timer
 
 init python:
     def add_to_inventory(item):
@@ -401,8 +401,11 @@ label evidence_collection_scene(evidence_items):
     show screen cancel_examination()  # Cancel button only appears when examining_evidence is set
     show screen continue_prompt
     
-    # Use Ren'Py's built-in pause to wait for player interaction
-    $ renpy.pause(hard=True)
+    # Wait for space bar to be pressed
+    $ proceed = False
+    while not proceed:
+        $ proceed = renpy.call_screen("continue_prompt")
+        $ renpy.pause(0.1)  # Short pause to prevent CPU usage spike
     
     # Hide screens before returning
     hide screen equipment_selection
@@ -495,17 +498,11 @@ label start:
     
     # Show what equipment was used for each piece of evidence
     if len(inventory) > 0:
-        nina "You made good use of your forensic toolkit:"
+        nina "You made good use of your forensic toolkit."
+        nina "Let me show you all the evidence you've collected."
         
-        python:
-            equipment_summary = ""
-            for item in inventory:
-                equip = evidence_requirements[item]
-                item_formatted = item.replace("_", " ").title()
-                equip_formatted = equip.replace("_", " ").title()
-                equipment_summary += "- " + item_formatted + " collected with " + equip_formatted + "\n"
-                
-        nina "[equipment_summary]"
+        # Show the visual evidence summary screen
+        call screen evidence_summary()
     
     nina "This case will still require careful laboratory work to determine exactly what caused the victim's death."
     nina "This concludes the initial crime scene assessment. The evidence has been documented and collected for laboratory analysis."
@@ -525,9 +522,8 @@ screen investigation_hint():
         
         # Different hints based on investigation state
         if examining_evidence:
-            $ required_tool = evidence_requirements[examining_evidence].replace("_", " ").title()
             $ evidence_name = examining_evidence.replace("_", " ").title()
-            text "Examining: [evidence_name] - Choose the correct tool to collect this evidence":
+            text "Examining: [evidence_name] - Select the appropriate tool to collect this evidence":
                 size 22
                 color "#FFCC00"
                 outlines [(1, "#000000", 0, 0)]
@@ -548,7 +544,7 @@ screen investigation_hint():
 
 # Screen for displaying examination message when evidence is first clicked
 screen examination_message(item):
-    modal True
+    modal False  # Changed to non-modal so player can interact with other elements
     frame:
         xalign 0.5
         yalign 0.3
@@ -565,33 +561,31 @@ screen examination_message(item):
             # Custom descriptions for each evidence item
             if item == "chopsticks":
                 text "You found chopsticks with potential fingerprints." style "evidence_text"
-                text "Select a tool to collect this evidence." style "evidence_text"
+                text "Select the appropriate tool to collect this evidence." style "evidence_text"
             elif item == "soySauce":
                 text "This soy sauce bottle looks suspicious." style "evidence_text"
-                text "Select a tool to collect a sample." style "evidence_text"
+                text "Select the appropriate tool to collect a sample." style "evidence_text"
             elif item == "courseMenu":
                 text "The menu has some unknown stains." style "evidence_text"
-                text "Select a tool to collect this evidence." style "evidence_text"
+                text "Select the appropriate tool to collect this evidence." style "evidence_text"
             elif item == "sushi":
                 text "The half-eaten sushi roll needs to be examined." style "evidence_text"
-                text "Select a tool to collect a sample." style "evidence_text"
+                text "Select the appropriate tool to collect a sample." style "evidence_text"
             elif item == "knife":
                 text "This knife may have been used to prepare the food." style "evidence_text"
-                text "Select a tool to check for prints." style "evidence_text"
+                text "Select the appropriate tool to check for prints." style "evidence_text"
             elif item == "fishFilet":
                 text "The fish filet needs to be sampled." style "evidence_text"
-                text "Select a tool to collect this evidence." style "evidence_text"
+                text "Select the appropriate tool to collect this evidence." style "evidence_text"
             elif item == "notebook":
                 text "A notebook with faded writing needs analysis." style "evidence_text"
-                text "Select a tool to reveal the contents." style "evidence_text"
+                text "Select the appropriate tool to reveal the contents." style "evidence_text"
             else:
                 text "You found evidence: [item]" style "evidence_text"
-                text "Select a tool to collect this evidence." style "evidence_text"
-            
-            null height 10
-            textbutton "Choose Tool":
-                style "confirm_button"
-                action Hide("examination_message")
+                text "Select the appropriate tool to collect it." style "evidence_text"
+    
+    # Automatically close the message after a short delay
+    timer 2.0 action Hide("examination_message")
                 
 # Style for confirm buttons
 style confirm_button:
@@ -633,3 +627,96 @@ style cancel_button_text:
     size 22
     xalign 0.5
     text_align 0.5
+
+# Screen to display all collected evidence at the end
+screen evidence_summary():
+    modal True
+    
+    # Background overlay
+    add "#000000CC"
+    
+    frame:
+        xalign 0.5
+        yalign 0.5
+        xsize int(config.screen_width * 0.8)
+        ysize int(config.screen_height * 0.8)
+        background "#000040AA"
+        padding (40, 40)
+        
+        vbox:
+            spacing 20
+            xalign 0.5
+            
+            text "Evidence Collected" style "evidence_header"
+            null height 10
+            
+            # Grid to display evidence images - calculate columns based on number of items
+            $ grid_columns = min(4, max(2, len(inventory)))  # At least 2, at most 4 columns
+            grid grid_columns len(inventory) // grid_columns + (1 if len(inventory) % grid_columns else 0):
+                spacing 30
+                xalign 0.5
+                
+                for item in inventory:
+                    frame:
+                        background "#00000080"
+                        padding (10, 10)
+                        xsize 250
+                        
+                        vbox:
+                            spacing 10
+                            xalign 0.5
+                            
+                            # Show the evidence image
+                            add "evidence " + item + " idle" xalign 0.5
+                            
+                            # Show evidence name
+                            text item.replace("_", " ").title():
+                                color "#FFFFFF" 
+                                size 24 
+                                xalign 0.5 
+                                text_align 0.5
+                                outlines [(1, "#000000", 0, 0)]
+                            
+                            # Show equipment used
+                            text "Collected with:":
+                                color "#FFCC00" 
+                                size 18 
+                                xalign 0.5 
+                                text_align 0.5
+                                outlines [(1, "#000000", 0, 0)]
+                                
+                            text evidence_requirements[item].replace("_", " ").title():
+                                color "#88CCFF" 
+                                size 18 
+                                xalign 0.5 
+                                text_align 0.5
+                                outlines [(1, "#000000", 0, 0)]
+            
+            null height 30
+            
+            # Continue button
+            frame:
+                background "#004080"
+                hover_background "#0060A0"
+                padding (30, 15)
+                xalign 0.5
+                
+                textbutton "Continue":
+                    text_style "continue_button_text"
+                    action Hide("evidence_summary")
+
+style continue_button_text:
+    color "#FFFFFF"
+    hover_color "#FFCC00"
+    size 28
+    outlines [(1, "#000000", 0, 0)]
+    xalign 0.5
+    text_align 0.5
+
+# Label for showing evidence summary - can be called from other parts of the game if needed
+label show_evidence_summary:
+    if len(inventory) > 0:
+        call screen evidence_summary()
+    else:
+        nina "You haven't collected any evidence yet."
+    return
