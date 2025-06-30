@@ -1,0 +1,54 @@
+# Ren'Py specific files and directories
+*.rpyc
+*.rpyb
+*.rpymc
+*.rpym~
+*.rpyo
+*.pyo
+*.bak
+*~
+*.rpa
+*.swp
+
+# Game logs and error files
+log.txt
+errors.txt
+traceback.txt
+
+# Ren'Py auto-generated files - both relative and absolute paths to be safe
+game/cache/
+/game/cache/
+game/saves/
+/game/saves/
+game/bytecode.rpyb
+/game/bytecode.rpyb
+game/screens.rpyb
+/game/screens.rpyb
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# System specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE specific
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Build and distribution
+dist/
+build/
+*.dmg
+*.app
+*.exe
+*.zip
+
+# Game specific
+screenshots/
+tmp/
