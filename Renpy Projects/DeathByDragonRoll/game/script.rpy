@@ -82,17 +82,18 @@ style nina_say_window:
     xsize int(config.screen_width * 0.8)
     ysize int(config.screen_height * 0.25)
 
-    # Paddings tuned for the new size
-    left_padding   200
-    right_padding  100
-    top_padding    100
-    bottom_padding  60
+    # Paddings tuned for the new size - adjusted to move text lower
+    left_padding   400
+    right_padding  120
+    top_padding    250   # Increased to push text down
+    bottom_padding  30   # Decreased to keep overall space balanced
 
 style nina_say_what:
     color       "#FFFFFF"
     size        22         # slightly smaller for better fit
     text_align  0.5
-    xsize       int(config.screen_width * 0.6)
+    xsize       int(config.screen_width * 0.4)  # Further reduced from 0.5 to 0.4 for even narrower text
+    yalign      0.6        # Position text slightly lower in the textbox
 
 # Define our characters
 define nina = Character(
@@ -294,16 +295,9 @@ screen equipment_selection():
 
 # Screen for displaying clickable evidence items
 screen evidence_items(items):
-    # Calculate adjusted center area (accounting for side panels when they appear)
-    $ center_offset_x = int(config.screen_width * 0.15)  # Offset from left side panel width
-    
     # Ensure evidence items are positioned within the visible center area
     for item_name, pos in items:
         if not evidence_collected[item_name]:
-            # Adjust position to ensure it's in the center area
-            # Scale the original position based on screen width, accounting for panel widths on both sides
-            $ adjusted_x = center_offset_x + int((pos[0] / 1280.0) * (config.screen_width - 2*center_offset_x))
-            
             # Use a different action based on whether this item is being examined
             if examining_evidence == item_name:
                 # Check if the correct equipment is selected
@@ -311,8 +305,8 @@ screen evidence_items(items):
                 
                 imagebutton:
                     auto "evidence " + item_name + " %s"
-                    xpos adjusted_x
-                    ypos pos[1]
+                    xalign pos[0]  # Use xalign instead of absolute position
+                    yalign pos[1]  # Use yalign instead of absolute position
                     focus_mask True
                     
                     # When examined and equipment selected, handle collection
@@ -329,8 +323,8 @@ screen evidence_items(items):
                 # Initial click to start examining this evidence
                 imagebutton:
                     auto "evidence " + item_name + " %s"
-                    xpos adjusted_x
-                    ypos pos[1]
+                    xalign pos[0]
+                    yalign pos[1]
                     focus_mask True
                     action [SetVariable("examining_evidence", item_name),
                             Show("examination_message", item=item_name)]
@@ -438,12 +432,12 @@ label start:
     nina "Your forensic toolkit is ready, start your investigation here!"
 
     # Define positions for evidence items in the restaurant scene
-    # Format: (evidence_name, (x_position, y_position))
+    # Format: (evidence_name, (xalign, yalign)) using values 0.0-1.0
     $ restaurant_evidence = [
-        ("chopsticks", (620, 700)),   # Left side
-        ("soySauce", (800, 600)),     # Center-left
-        ("courseMenu", (220, 740)),     # Center-right
-        ("sushi", (630, 590))         # Right side
+        ("chopsticks", (0.40, 0.63)),   # Left side - moved down
+        ("soySauce", (0.52, 0.54)),     # Center-left - moved to the left
+        ("courseMenu", (0.15, 0.83)),   # Center-right - moved down and right
+        ("sushi", (0.44, 0.55))         # Right side - moved down and to the right
     ]    # Evidence collection phase - Show evidence and prompt
     window hide
     
@@ -464,11 +458,11 @@ label start:
     nina "Remember to select the right forensic tools for each piece of evidence. The wrong tool won't work!"
     
     # Define positions for evidence items in the kitchen scene
-    # Format: (evidence_name, (x_position, y_position))
+    # Format: (evidence_name, (xalign, yalign)) using values 0.0-1.0
     $ kitchen_evidence = [
-        ("knife", (700, 600)),       # Left side
-        ("fishFilet", (600, 450)),   # Center
-        ("notebook", (800, 970))     # Right side
+        ("knife", (0.6, 0.6)),        # Right side - unchanged
+        ("fishFilet", (0.45, 0.58)),  # Center - moved down a little
+        ("notebook", (0.5, 0.85))     # Bottom center - moved further down
     ]    # Evidence collection phase - Show evidence and prompt
     window hide
     
